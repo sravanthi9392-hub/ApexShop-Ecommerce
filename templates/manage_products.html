@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold text-dark m-0"><i class="bi bi-boxes text-primary me-2"></i>Catalog Control Layer</h3>
+    <button class="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addProductModal"><i class="bi bi-plus-circle-fill"></i> Inject New Item Record</button>
+</div>
+
+<div class="card border-0 bg-white shadow-sm p-4">
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr class="text-secondary small uppercase border-bottom">
+                    <th>Product Spec</th>
+                    <th>Category</th>
+                    <th>Pricing</th>
+                    <th>Stock Parameter</th>
+                    <th class="text-end">Management Control Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for prod in products %}
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-3">
+                            <img src="{{ prod.image_url }}" alt="{{ prod.name }}" class="img-fluid rounded border bg-light" style="width: 45px; height: 45px; object-fit: contain;">
+                            <span class="fw-bold text-dark text-truncate" style="max-width: 200px;">{{ prod.name }}</span>
+                        </div>
+                    </td>
+                    <td><span class="badge bg-light text-dark border">{{ prod.category }}</span></td>
+                    <td class="font-monospace fw-bold text-dark">₹ {{ "%.2f"|format(prod.price) }}</td>
+                    <td class="fw-semibold text-secondary font-monospace">{{ prod.stock_quantity }} units</td>
+                    <td class="text-end">
+                        <div class="d-inline-flex gap-2">
+                            <button class="btn btn-xs btn-outline-secondary py-1" data-bs-toggle="modal" data-bs-target="#editModal{{ prod.id }}"><i class="bi bi-pencil-square"></i></button>
+                            <a href="{{ url_for('delete_product', id=prod.id) }}" class="btn btn-xs btn-outline-danger py-1" onclick="return confirm('Confirm destructive database wipe action execute command parameters?')"><i class="bi bi-trash3"></i></a>
+                        </div>
+                    </td>
+                </tr>
+
+                <div class="modal fade" id="editModal{{ prod.id }}" tabindex="-1">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content border-0 shadow">
+                            <div class="modal-header bg-light">
+                                <h5 class="modal-title fw-bold text-dark">Modify Product Record #{{ prod.id }}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <form action="{{ url_for('edit_product', id=prod.id) }}" method="POST" enctype="multipart/form-data">
+                                <div class="modal-body bg-white p-4">
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-bold text-secondary">Product Header Title</label>
+                                        <input type="text" name="name" class="form-control bg-light" value="{{ prod.name }}" required>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-6">
+                                            <label class="form-label small fw-bold text-secondary">Category Group</label>
+                                            <input type="text" name="category" class="form-control bg-light" value="{{ prod.category }}" required>
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="form-label small fw-bold text-secondary">Base Pricing Unit</label>
+                                            <input type="number" step="0.01" name="price" class="form-control bg-light" value="{{ prod.price }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-bold text-secondary">Stock Inventory Metrics Units Count</label>
+                                        <input type="number" name="stock" class="form-control bg-light" value="{{ prod.stock_quantity }}" required>
+                                    </div>
+                                    
+                                    <div class="mb-3 p-3 bg-light rounded-3 border text-start">
+                                        <label class="form-label small fw-bold text-dark d-block mb-2"><i class="bi bi-image me-1 text-primary"></i> Modify Image Asset Source</label>
+                                        <div class="mb-3">
+                                            <label class="form-label text-secondary text-xs mb-1 fw-semibold">Option 1: Upload New File from Laptop</label>
+                                            <input type="file" name="image_file" class="form-control form-control-sm bg-white">
+                                            <div class="text-muted text-xs mt-1">Current Image: <code class="small text-break text-primary">{{ prod.image_url }}</code></div>
+                                        </div>
+                                        <div class="text-center my-2 text-xs text-muted fw-bold">— OR —</div>
+                                        <div>
+                                            <label class="form-label text-secondary text-xs mb-1 fw-semibold">Option 2: Override with new Web Image URL Link</label>
+                                            <input type="url" name="image_url" class="form-control form-control-sm bg-white" placeholder="Leave blank to keep current image path">
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-0">
+                                        <label class="form-label small fw-bold text-secondary">Detailed Description Specification Field</label>
+                                        <textarea name="description" class="form-control bg-light" rows="3" required>{{ prod.description }}</textarea>
+                                    </div>
+                                </div>
+                                <div class="modal-footer bg-light border-0">
+                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel Modification</button>
+                                    <button type="submit" class="btn btn-primary">Commit Structural Changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="addProductModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title fw-bold">Deploy New Catalog Record Node</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('manage_products') }}" method="POST" enctype="multipart/form-data">
+                <div class="modal-body bg-white p-4">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-secondary">Product Structural Name</label>
+                        <input type="text" name="name" class="form-control bg-light" placeholder="e.g. Mechanical Keyboard Pro" required>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="form-label small fw-bold text-secondary">Category Group Selector</label>
+                            <select name="category" class="form-select bg-light" required>
+                                <option value="Electronics">Electronics</option>
+                                <option value="Fashion">Fashion</option>
+                                <option value="Books">Books</option>
+                                <option value="Home & Kitchen">Home & Kitchen</option>
+                                <option value="Sports">Sports</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-bold text-secondary">Valuation Price Unit</label>
+                            <input type="number" step="0.01" name="price" class="form-control bg-light" placeholder="99.99" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-secondary">Available Base Physical Storage Units Count</label>
+                        <input type="number" name="stock" class="form-control bg-light" placeholder="50" required>
+                    </div>
+                    
+                    <div class="mb-3 p-3 bg-light rounded-3 border">
+                        <label class="form-label small fw-bold text-dark d-block mb-2"><i class="bi bi-image me-1 text-primary"></i> Product Image Source</label>
+                        <div class="mb-2">
+                            <label class="form-label text-muted text-xs mb-1">Option 1: Upload Image File from Computer</label>
+                            <input type="file" name="image_file" class="form-control form-control-sm bg-white">
+                        </div>
+                        <div class="text-center my-2 text-xs text-muted fw-bold">— OR —</div>
+                        <div>
+                            <label class="form-label text-muted text-xs mb-1">Option 2: Paste Web Image URL Link</label>
+                            <input type="url" name="image_url" class="form-control form-control-sm bg-white" placeholder="https://example.com/photo.jpg">
+                        </div>
+                    </div>
+
+                    <div class="mb-0">
+                        <label class="form-label small fw-bold text-secondary">Detailed Description Log Payload Block</label>
+                        <textarea name="description" class="form-control bg-light" rows="3" placeholder="Enter specifications structural technical copy detailing package parameters." required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Abort Entry</button>
+                    <button type="submit" class="btn btn-primary px-4">Execute Matrix Entry Commit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

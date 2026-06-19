@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row g-4">
+    <div class="col-lg-3">
+        <div class="card p-4 border-0 shadow-sm bg-white sticky-top mb-4" style="top: 90px; z-index: 10;">
+            <h5 class="fw-bold text-dark mb-3"><i class="bi bi-sliders2 me-2 text-primary"></i>Engine Filters</h5>
+            <form method="GET" action="{{ url_for('products') }}">
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-secondary">Search Keyword</label>
+                    <input type="text" name="search" class="form-control bg-light border-0 text-sm" placeholder="Title, specifications..." value="{{ search }}">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-secondary">Product Category</label>
+                    <select name="category" class="form-select bg-light border-0 text-sm">
+                        <option value="">All Categories</option>
+                        {% for cat in ['Electronics', 'Fashion', 'Books', 'Home & Kitchen', 'Sports'] %}
+                            <option value="{{ cat }}" {% if category == cat %}selected{% endif %}>{{ cat }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label small fw-bold text-secondary">Price Range Window</label>
+                    <div class="d-flex gap-2">
+                        <input type="number" name="min_price" class="form-control bg-light border-0 text-sm" placeholder="Min" value="{{ request.args.get('min_price','') }}">
+                        <input type="number" name="max_price" class="form-control bg-light border-0 text-sm" placeholder="Max" value="{{ request.args.get('max_price','') }}">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 mb-2">Apply Filters</button>
+                <a href="{{ url_for('products') }}" class="btn btn-light text-secondary w-100 text-xs">Clear Form</a>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-lg-9">
+        <div class="bg-white p-3 rounded-3 border mb-4 shadow-sm d-flex justify-content-between align-items-center">
+            <span class="text-secondary small fw-medium">Active catalog listings match filters.</span>
+            <span class="badge bg-light text-dark border px-3 py-2 font-monospace">{{ products|length }} Items On screen</span>
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
+            {% for product in products %}
+            <div class="col">
+                <div class="card h-100 border-0 bg-white">
+                    <div class="position-relative overflow-hidden rounded-top-3 bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                        <img src="{{ product.image_url }}" alt="{{ product.name }}" class="img-fluid p-3 max-h-100" onerror="this.src='https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500';">
+                    </div>
+                    <div class="card-body p-4 d-flex flex-column">
+                        <span class="badge bg-light text-secondary mb-2 align-self-start border">{{ product.category }}</span>
+                        <h6 class="fw-bold text-dark text-truncate mb-2">{{ product.name }}</h6>
+                        <h5 class="fw-black text-primary mb-3">₹ {{ "%.2f"|format(product.price) }}</h5>
+                        <div class="mt-auto d-flex gap-2">
+                            <a href="{{ url_for('product_detail', product_id=product.id) }}" class="btn btn-sm btn-outline-secondary w-50 rounded-3">Explore</a>
+                            <form action="{{ url_for('add_to_cart', product_id=product.id) }}" method="POST" class="w-50">
+                                <button type="submit" class="btn btn-sm btn-primary w-100 rounded-3"><i class="bi bi-cart-plus"></i> Buy</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-12 text-center py-5 bg-white border rounded-3 w-100 shadow-sm">
+                <i class="bi bi-search text-muted display-4 mb-3 d-block"></i>
+                <h5 class="text-dark fw-bold">No Query Target Records Located</h5>
+                <p class="text-muted small">Adjust query attributes parameters configuration matrix form criteria reset execution pipeline state.</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if pagination and pagination.pages > 1 %}
+        <nav>
+            <ul class="pagination justify-content-center">
+                {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                    {% if page_num %}
+                        <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                            <a class="page-link" href="{{ url_for('products', page=page_num, search=search, category=category, min_price=request.args.get('min_price',''), max_price=request.args.get('max_price','')) }}">{{ page_num }}</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

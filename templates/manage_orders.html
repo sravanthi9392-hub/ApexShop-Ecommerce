@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block content %}
+<h3 class="fw-bold text-dark mb-4"><i class="bi bi-receipt text-primary me-2"></i>Global Systems Order Flow Controller Interface</h3>
+
+<div class="card border-0 bg-white shadow-sm p-4">
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr class="text-secondary small uppercase border-bottom">
+                    <th>System Order Token ID</th>
+                    <th>Consignee Node Identity</th>
+                    <th>Financial Scale Val</th>
+                    <th>Current Status Badge</th>
+                    <th class="text-end">Status Modifier Form Pipeline</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td class="font-monospace fw-bold text-dark">#AX-{{ order.id }}</td>
+                    <td>
+                        <div class="small">
+                            <strong class="text-dark d-block">{{ order.full_name }}</strong>
+                            <span class="text-muted text-xs">{{ order.city }}, {{ order.pincode }}</span>
+                        </div>
+                    </td>
+                    <td class="font-monospace fw-bold text-dark">₹ {{ "%.2f"|format(order.total_amount) }}</td>
+                    <td>
+                        {% if order.order_status == 'Pending' %}<span class="badge bg-warning text-dark px-2.5 py-1 text-xs">Pending</span>
+                        {% elif order.order_status == 'Processing' %}<span class="badge bg-info text-dark px-2.5 py-1 text-xs">Processing</span>
+                        {% elif order.order_status == 'Shipped' %}<span class="badge bg-primary text-white px-2.5 py-1 text-xs">Shipped</span>
+                        {% else %}<span class="badge bg-success text-white px-2.5 py-1 text-xs">Delivered</span>{% endif %}
+                    </td>
+                    <td class="text-end">
+                        <form action="{{ url_for('manage_orders') }}" method="POST" class="d-inline-flex gap-2 align-items-center justify-content-end">
+                            <input type="hidden" name="order_id" value="{{ order.id }}">
+                            <select name="status" class="form-select form-select-sm bg-light border-0 text-xs" style="width: 120px;" onchange="this.form.submit()">
+                                <option value="Pending" {% if order.order_status == 'Pending' %}selected{% endif %}>Pending</option>
+                                <option value="Processing" {% if order.order_status == 'Processing' %}selected{% endif %}>Processing</option>
+                                <option value="Shipped" {% if order.order_status == 'Shipped' %}selected{% endif %}>Shipped</option>
+                                <option value="Delivered" {% if order.order_status == 'Delivered' %}selected{% endif %}>Delivered</option>
+                            </select>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted py-4 small">No transactional order entities pipeline events captured globally inside the running cluster context.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

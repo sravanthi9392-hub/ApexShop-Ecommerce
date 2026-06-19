@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block content %}
+<h3 class="fw-bold text-dark mb-4"><i class="bi bi-box-seam-fill text-primary me-2"></i>Full Operational Manifest Delivery Log</h3>
+
+{% for order in orders %}
+<div class="card border-0 bg-white shadow-sm mb-4 p-4 overflow-hidden">
+    <div class="row align-items-center g-3 border-bottom pb-3 mb-3 bg-light bg-opacity-50 m-n4 p-3 rounded-top">
+        <div class="col-sm-3">
+            <span class="text-muted text-xs uppercase d-block">Transaction Identity Handle</span>
+            <strong class="font-monospace text-dark">#AX-{{ order.id }}</strong>
+        </div>
+        <div class="col-sm-3">
+            <span class="text-muted text-xs uppercase d-block">Timestamp Manifest Date</span>
+            <span class="small text-dark fw-medium">{{ order.order_date.strftime('%B %d, %Y at %H:%M') }}</span>
+        </div>
+        <div class="col-sm-3">
+            <span class="text-muted text-xs uppercase d-block">Net Allocation Disbursed</span>
+            <strong class="font-monospace text-primary">₹ {{ "%.2f"|format(order.total_amount) }}</strong>
+        </div>
+        <div class="col-sm-3 text-sm-end">
+            {% if order.order_status == 'Pending' %}<span class="badge bg-warning border border-warning text-dark px-3 py-1.5 rounded-pill text-xs">Pending</span>
+            {% elif order.order_status == 'Processing' %}<span class="badge bg-info border border-info text-dark px-3 py-1.5 rounded-pill text-xs">Processing</span>
+            {% elif order.order_status == 'Shipped' %}<span class="badge bg-primary border border-primary text-white px-3 py-1.5 rounded-pill text-xs">Shipped</span>
+            {% else %}<span class="badge bg-success border border-success text-white px-3 py-1.5 rounded-pill text-xs">Delivered</span>{% endif %}
+        </div>
+    </div>
+
+    <h6 class="fw-bold text-secondary mb-3 text-xs uppercase">Segment Items Inventory Allocation Block</h6>
+    <div class="row g-3">
+        {% for item in order.items %}
+        <div class="col-md-6">
+            <div class="d-flex align-items-center gap-3 bg-light p-2 rounded-3 border border-light">
+                <img src="{{ item.product.image_url }}" alt="" class="img-fluid rounded bg-white" style="width: 50px; height: 50px; object-fit: contain;" onerror="this.src='https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500';">
+                <div class="text-truncate">
+                    <h6 class="small fw-bold text-dark m-0 text-truncate" style="max-width: 250px;">{{ item.product.name }}</h6>
+                    <span class="text-muted text-xs font-monospace">{{ item.quantity }} piece(s) x ₹ {{ "%.2f"|format(item.price) }}</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% else %}
+<div class="card text-center border-0 bg-white p-5 shadow-sm">
+    <div class="card-body">
+        <i class="bi bi-receipt text-muted display-3 mb-3 d-block"></i>
+        <h5 class="fw-bold text-dark">No Historical Target Logs Exist</h5>
+        <p class="text-secondary small">Commit products from tracking interface system to monitor order status.</p>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

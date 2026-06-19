@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block content %}
+<h3 class="fw-bold text-dark mb-4"><i class="bi bi-bag-check-fill text-primary me-2"></i>Active Operations Storage Cart</h3>
+
+{% if cart_items %}
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card border-0 bg-white p-4 shadow-sm mb-4">
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr class="text-secondary small uppercase border-bottom">
+                            <th scope="col">Product Spec</th>
+                            <th scope="col" class="text-center">Quantity Field</th>
+                            <th scope="col" class="text-end">Total Pipeline</th>
+                            <th scope="col" class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in cart_items %}
+                        <tr class="border-bottom border-light">
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    <img src="{{ item.product.image_url }}" alt="" class="img-fluid rounded border bg-light" style="width: 60px; height: 60px; object-fit: contain;" onerror="this.src='https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500';">
+                                    <div>
+                                        <h6 class="fw-bold text-dark mb-0 text-truncate" style="max-width: 250px;">{{ item.product.name }}</h6>
+                                        <span class="text-muted small">₹ {{ "%.2f"|format(item.product.price) }} unit</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <form action="{{ url_for('update_cart', cart_id=item.id) }}" method="POST" class="d-inline-flex align-items-center gap-1">
+                                    <input type="number" name="quantity" class="form-control form-control-sm text-center fw-bold bg-light" value="{{ item.quantity }}" min="1" max="{{ item.product.stock_quantity }}" style="width: 65px;" onchange="this.form.submit()">
+                                </form>
+                            </td>
+                            <td class="text-end fw-bold text-dark font-monospace">₹ {{ "%.2f"|format(item.product.price * item.quantity) }}</td>
+                            <td class="text-end">
+                                <a href="{{ url_for('remove_from_cart', cart_id=item.id) }}" class="text-danger border border-danger-subtle bg-danger-subtle bg-opacity-10 p-2 rounded-3 text-xs"><i class="bi bi-trash3"></i></a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <a href="{{ url_for('products') }}" class="btn btn-outline-secondary rounded-3 px-4"><i class="bi bi-arrow-left me-2"></i>Continue Shopping</a>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card border-0 bg-white shadow-sm p-4 sticky-top" style="top: 90px;">
+            <h5 class="fw-bold text-dark mb-4">Financial Order Balance Summary</h5>
+            <div class="d-flex justify-content-between mb-2 small text-secondary">
+                <span>Subtotal Metrics Balance:</span>
+                <span class="font-monospace">₹ {{ "%.2f"|format(subtotal) }}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-3 small text-secondary">
+                <span>Estimated Standard Surcharge Tax (5%):</span>
+                <span class="font-monospace">₹ {{ "%.2f"|format(tax) }}</span>
+            </div>
+            <hr class="border-secondary border-opacity-20 my-3">
+            <div class="d-flex justify-content-between mb-4 align-items-center">
+                <span class="fw-bold text-dark">Grand Net Valuation Total:</span>
+                <span class="fs-4 fw-black text-primary font-monospace">₹ {{ "%.2f"|format(grand_total) }}</span>
+            </div>
+            <a href="{{ url_for('checkout') }}" class="btn btn-primary w-100 py-3 rounded-3 font-semibold shadow-sm text-uppercase tracking-wider">Execute Secure Checkout Pipeline</a>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="card text-center p-5 border-0 shadow-sm bg-white">
+    <div class="card-body">
+        <i class="bi bi-cart-x text-muted display-3 mb-3 d-block"></i>
+        <h4 class="fw-bold text-dark">Your Shopping Cart is Empty</h4>
+        <p class="text-secondary small mb-4">No active pending checkout entities were located inside this session state architecture block.</p>
+        <a href="{{ url_for('products') }}" class="btn btn-primary px-5 rounded-pill shadow-sm">Browse Products Index</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
