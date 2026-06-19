@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="text-center py-5">
+    <div class="display-1 fw-black text-primary font-monospace mb-2">404</div>
+    <h3 class="fw-bold text-dark mb-3">Target Address Routing Exception Encountered</h3>
+    <p class="text-secondary max-w-md mx-auto mb-4 small">The system application pipeline handler was unable to verify the execution trace pointer configuration address context for your request.</p>
+    <a href="{{ url_for('home') }}" class="btn btn-primary px-4 py-2.5 rounded-pill shadow-sm"><i class="bi bi-house-door me-2"></i>Return To Home Safe Haven Node</a>
+</div>
+{% endblock %}
