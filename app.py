@@ -451,7 +451,12 @@ def api_order_detail(id):
 def page_not_found(e):
     return render_template('404.html'), 404
 
+# ==========================================================================
+# RENDER DEPLOYMENT DATABASE INITIALIZER
+# ==========================================================================
+# Executed globally outside the run block so Gunicorn creates missing tables on Render
+with app.app_context():
+    db.create_all()
+
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
     app.run(debug=True, port=5000)
