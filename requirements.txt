@@ -6,3 +6,4 @@ PyMySQL
 cryptography
 Werkzeug
 email-validator
+gunicorn
